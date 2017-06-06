@@ -24,9 +24,9 @@ editor.open_file(filename)  # show the user the cached json data
 # the code below from stackflow is what i think we will need to generically process the 
 # returned json/dict. well at least the start anyway... IanJ
 def recurse(d, keys=()):
-    if type(d) == dict:
-         for k in d:
-            for rv in recurse(d[k], keys + (k, )):
+    if isinstance(d, dict):
+         for key, value in d.items():
+            for rv in recurse(value, keys + (key, )):
                 yield rv
     else:
         yield (keys, d)
