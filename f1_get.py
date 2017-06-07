@@ -22,12 +22,15 @@ races = [race(**r) for r in data['MRData']['RaceTable']['Races']]
 print(races[6])
 if editor:  # if running on http://omz-software.com/pythonista/
     editor.open_file(filename)  # show the user the cached json data
+else:
+    print(json.dumps(data, indent=2))
+
 
 '''
     https://stackoverflow.com/questions/8335096/iterate-over-nested-dictionary
 '''
-# the code below from stackflow is what i think we will need to generically process the 
-# returned json/dict. well at least the start anyway... IanJ
+# the code below from stackflow is what i think we will need to generically
+# process the returned json/dict. well at least the start anyway... IanJ
 def recurse(d, keys=()):
     if isinstance(d, dict):
          for key, value in d.items():
@@ -36,8 +39,9 @@ def recurse(d, keys=()):
     else:
         yield (keys, d)
 
-#for compound_key, val in recurse(data):
-    #print('{}: {}'.format(compound_key, val))
-    
+
+# for compound_key, val in recurse(data):
+    # print('{}: {}'.format(compound_key, val))
+
 for compound_key, val in recurse(data):
     print('{}'.format(compound_key))
