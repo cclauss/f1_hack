@@ -1,11 +1,15 @@
 from collections import namedtuple
-import editor
 import json
 import os
 import requests
 
+try:
+    import editor  # if running on http://omz-software.com/pythonista/
+except InportError:
+    editor = None
+
 race = namedtuple('race', 'season round time raceName date url Circuit')
-url = 'http://ergast.com/api/f1/current.json'
+url = 'https://ergast.com/api/f1/current.json'
 filename = os.path.join(os.path.dirname(__file__), url.split('/')[-1])
 
 r = requests.get(url)
@@ -16,7 +20,8 @@ with open(filename, 'w') as out_file:    # avoid repeated API calls...
 
 races = [race(**r) for r in data['MRData']['RaceTable']['Races']]
 print(races[6])
-editor.open_file(filename)  # show the user the cached json data
+if editor:  # if running on http://omz-software.com/pythonista/
+    editor.open_file(filename)  # show the user the cached json data
 
 '''
     https://stackoverflow.com/questions/8335096/iterate-over-nested-dictionary
