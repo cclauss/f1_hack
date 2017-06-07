@@ -5,7 +5,7 @@ import requests
 
 try:
     import editor  # if running on http://omz-software.com/pythonista/
-except InportError:
+except ImportError:
     editor = None
 
 race = namedtuple('race', 'season round time raceName date url Circuit')
