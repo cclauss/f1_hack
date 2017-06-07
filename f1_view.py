@@ -1,13 +1,22 @@
 from collections import namedtuple
 import json
 import console
+import datetime
 import ui
 
-race = namedtuple('race', 'season round time raceName date url Circuit')
+filename = 'current.json'
+race_data = namedtuple('race_data', 'season round time raceName date url Circuit')
 race_fmt = ('{round:>2} on {date}T{time} {raceName} at {Circuit[circuitName]}'
             ' in {Circuit[Location][locality]}, {Circuit[Location][country]}')
 
-filename = 'current.json'
+def race_datetime(race):
+    race_date = '{date}T{time}'.format(**race)
+    return datetime.datetime.strptime(race_date, '%Y-%m-%dT%H:%M:%SZ')
+    
+
+def in_the_future(race):  # supress races that are in the past
+    four_hours = datetime.timedelta(hours=4)
+    return race_datetime(race) + four_hours > datetime.datetime.utcnow()
 
 try:
     with open(filename) as in_file:
@@ -15,13 +24,17 @@ try:
 except FileNotFoundError:
     exit("Please run 'f1_get.py' before running this script.")
 
-races = [race(**r) for r in data['MRData']['RaceTable']['Races']]
-print(races[6])
+
+races = [race_data(**r) for r in data['MRData']['RaceTable']['Races']
+         if in_the_future(r)]
+
+print(races[0])
 
 class RaceView(ui.View):
     def __init__(self, races=races):
         self.name = f'Formula 1 - {races[0].season} raceing season'
         self.add_subview(self.make_races_view(races))
+
 
     def layout(self):
         self.subviews[0].frame = self.bounds
