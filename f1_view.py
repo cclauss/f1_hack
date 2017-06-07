@@ -1,7 +1,8 @@
 from collections import namedtuple
-import json
-import console
 import datetime
+import json
+
+import console  # script will only run on Pythonista 3 http://omz-software.com
 import ui
 
 filename = 'current.json'
