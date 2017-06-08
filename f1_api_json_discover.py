@@ -21,9 +21,13 @@ def json_discover(key, value, indent=0):
     elif isinstance(value, list):
         list_discover(key, value, indent)
     else:
-        print(' ' * indent + f'{key} ({type(value).__name__})')
+        print(f'{" " * indent}{key} ({type(value).__name__})')
+
 
 if __name__ == '__main__':
-    print('=' * 20)
-    with open(filename) as in_file:
-        json_discover('data', json.load(in_file))
+    print('=' * 23)
+    try:
+        with open(filename) as in_file:
+            json_discover('data', json.load(in_file))
+    except FileNotFoundError:
+        exit("Please run 'f1_get.py' before running this script.")
