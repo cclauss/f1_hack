@@ -1,6 +1,10 @@
+#!/usr/bin/env python3
+
 import json
 
 filename = 'current.json'
+# filename = 'fixer_io.json'
+first_list_item_only = True
 
 
 def dict_discover(key, value, indent):
@@ -10,9 +14,13 @@ def dict_discover(key, value, indent):
 
 
 def list_discover(key, value, indent):
-    print(f'{" " * indent}{key} (list of {len(value)} items):')
+    print(f'{" " * indent}{key} (list of {len(value)} items)...')
     for i, item in enumerate(value):
-        json_discover(f'{key}[{i}]', item, indent + 2)
+        if first_list_item_only:
+            if i:
+                break
+            i = f'0 thru {len(value) - 1}'
+            json_discover(f'{key}[{i}]', item, indent)
 
 
 def json_discover(key, value, indent=0):
