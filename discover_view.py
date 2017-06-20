@@ -38,9 +38,10 @@ class DiscoverView(ui.View):
 
     @property
     def curr_data_path(self):
-        for view in self.views:
+        for i, view in enumerate(self.views):
             if view.on_screen:
-
+                self.views = self.views[:i+1]  # trim the backed off views
+                assert view is self.views[-1]
                 return view.data_path
         return []
 
