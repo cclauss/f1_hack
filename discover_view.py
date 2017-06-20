@@ -13,22 +13,6 @@ def str_to_data_path(name=''):    # [a][0][b] --> ['a', 0, 'b']
     return [] if name == [''] else [int(s) if s.isdigit() else s for s in name]
 
 
-class DataElementView(ui.View):
-    def __init__(self, data_path, subview):
-        self.name = data_path_to_str(data_path)
-        self.add_subview(subview)
-
-    @property
-    def data_path(self):
-        return str_to_data_path(self.name)
-
-    def layout(self):
-        self.subviews[0].frame = self.bounds
-
-    def will_close(self):  # never gets called :-(
-        print('will_close!!')
-
-
 class DiscoverView(ui.View):
     def __init__(self, data, name=''):
         self.name = name or 'API Discovery'
@@ -42,7 +26,7 @@ class DiscoverView(ui.View):
             if view.on_screen:
                 self.views = self.views[:i+1]  # trim the backed off views
                 assert view is self.views[-1]
-                return view.data_path
+                return str_to_data_path(view.name)
         return []
 
     def data_at_data_path(self, data_path):
@@ -55,34 +39,33 @@ class DiscoverView(ui.View):
         if self.subviews:
             self.subviews[0].frame = self.bounds
 
-    def make_dict_view(self, data, data_path):
+    def make_dict_view(self, data, name):
         items = [f'{k} ({type(v).__name__}): {v}' for k, v in data.items()]
         lds = ui.ListDataSource(items)
         lds.font = ('<system-bold>', 10)
-        table_view = ui.TableView(data_source=lds, delegate=self, row_height=20)
-        return DataElementView(data_path=data_path, subview=table_view)
+        return ui.TableView(data_source=lds, delegate=self, name=name,
+                            row_height=20)
 
-    def make_info_view(self, data, data_path):
-        text_view = ui.TextView(text=f'{type(data).__name__}: {data}')
-        return DataElementView(data_path=data_path, subview=text_view)
+    def make_info_view(self, data, name):
+        return ui.TextView(name=name, text=f'{type(data).__name__}: {data}')
 
-    def make_list_view(self, data, data_path):
+    def make_list_view(self, data, name):
         items = [f'{i} {item} ({type(item).__name__})' for i, item
                  in enumerate(data)]
         lds = ui.ListDataSource(items)
         lds.font = ('<system-bold>', 10)
-        table_view = ui.TableView(data_source=lds, delegate=self, row_height=20)
-        return DataElementView(data_path=data_path, subview=table_view)
+        return ui.TableView(data_source=lds, delegate=self, name=name,
+                            row_height=20)
 
     def make_view(self, data_path):
-        data_path = data_path[:]  # make a local copy
         data = self.data_at_data_path(data_path)
+        name = data_path_to_str(data_path)
         if isinstance(data, dict):
-            return self.make_dict_view(data, data_path)
+            return self.make_dict_view(data, name)
         elif isinstance(data, list):
-            return self.make_list_view(data, data_path)
+            return self.make_list_view(data, name)
         else:
-            return self.make_info_view(data, data_path)
+            return self.make_info_view(data, name)
 
     def tableview_did_select(self, tableview, section, row):
         key = tableview.data_source.items[row].split()[0]
@@ -99,8 +82,6 @@ if __name__ == '__main__':
     print('=' * 23)
     try:
         with open(filename) as in_file:
-            # json_discover('data', json.load(in_file))
             ui.NavigationView(DiscoverView(json.load(in_file))).present()
-            # DiscoverView(json.load(in_file)).present()
     except FileNotFoundError:
         exit("Please run 'f1_get.py' before running this script.")
